@@ -1,0 +1,9 @@
+name = "feedback-api"
+main = "src/index.js"
+compatibility_date = "2026-10-21"
+workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "feedback-db"
+database_id = "cf6b98d3-3645-4e34-b5e6-928bda16809d"
