@@ -70,6 +70,7 @@
             <p class="admin-sub">סיכום שביעות רצון — ${esc(CFG.courseTitle)} · המשובים אנונימיים לחלוטין</p>
           </div>
           <div class="toolbar">
+            <button class="btn btn-ghost" id="csvBtn" ${items.length === 0 ? "disabled" : ""}>⬇ הורדת CSV</button>
             <button class="btn btn-ghost" id="refreshBtn">↻ רענון</button>
             <button class="btn btn-ghost" id="logoutBtn">יציאה</button>
           </div>
@@ -134,8 +135,33 @@
         `}
       </div>`;
 
+    const csvBtn = document.getElementById("csvBtn");
+    if (csvBtn) csvBtn.onclick = () => downloadCsv(items);
     document.getElementById("refreshBtn").onclick = loadResults;
     document.getElementById("logoutBtn").onclick = () => { sessionStorage.removeItem("fb_admin_pw"); state.data = null; renderLogin(); };
+  }
+
+
+  function csvCell(v) {
+    const t = v == null ? "" : String(v);
+    return '"' + t.replace(/"/g, '""') + '"';
+  }
+
+  function downloadCsv(items) {
+    const cols = [...CFG.ratingFields, ...CFG.commentFields];
+    const header = ["#", ...cols.map((f) => f.label)];
+    const lines = [header.map(csvCell).join(",")];
+    items.forEach((r, i) => {
+      lines.push([i + 1, ...cols.map((f) => r[f.key])].map(csvCell).join(","));
+    });
+    const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "feedback-results.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
   }
 
   async function loadResults() {
